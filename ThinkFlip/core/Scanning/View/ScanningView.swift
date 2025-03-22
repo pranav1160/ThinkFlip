@@ -11,6 +11,7 @@ struct ScanningView: View {
     
     @StateObject private var svm = ScanViewModel()
     @State private var navigateToCardView = false
+    @State private var navigateToTextInputView = false
     @StateObject private var cardVM = CardViewModel() // ✅ Shared ViewModel
     
     var body: some View {
@@ -47,7 +48,7 @@ struct ScanningView: View {
                 NavigationStack {
                     VStack {
                         Button {
-                            navigateToCardView = true
+                            navigateToTextInputView = true
                         }label: {
                             Text("Enter Text 📝")
                                 .padding()
@@ -57,8 +58,8 @@ struct ScanningView: View {
                                 .cornerRadius(8)
                         }
                     }
-                    .navigationDestination(isPresented: $navigateToCardView) {
-                        CardView(viewModel: cardVM)
+                    .navigationDestination(isPresented: $navigateToTextInputView) {
+                        TextInputView(viewModel: cardVM)
                     }
                 }
                 .padding()

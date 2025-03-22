@@ -4,7 +4,7 @@ import Vision
 import VisionKit
 
 class ScanViewModel: NSObject, ObservableObject, VNDocumentCameraViewControllerDelegate {
-    @Published var allScannedDocs: [ScannedDoc] = []
+    @Published var allScannedDocs: [ScannedDocModel] = []
     @Published var isPresentingScanner = false
     
     func startScanning() {
@@ -55,7 +55,7 @@ class ScanViewModel: NSObject, ObservableObject, VNDocumentCameraViewControllerD
             
             let recognizedText = results.compactMap { $0.topCandidates(1).first?.string }.joined(separator: "\n")
             DispatchQueue.main.async {
-                let document = ScannedDoc(text: recognizedText, dateScanned: Date())
+                let document = ScannedDocModel(text: recognizedText, dateScanned: Date())
                 self?.allScannedDocs.append(document)
             }
         }

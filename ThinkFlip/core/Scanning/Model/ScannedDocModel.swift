@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ScannedDoc : Identifiable {
+struct ScannedDocModel : Identifiable {
     let id = UUID()
     let text:String
     let dateScanned:Date

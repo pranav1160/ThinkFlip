@@ -2,6 +2,7 @@ import SwiftUI
 import VisionKit
 
 struct DocumentScannerView: UIViewControllerRepresentable {
+    
     @Environment(\.presentationMode) private var presentationMode
     var viewModel: ScanViewModel
     
@@ -42,4 +43,5 @@ struct DocumentScannerView: UIViewControllerRepresentable {
             parent.presentationMode.wrappedValue.dismiss()
         }
     }
+    
 }
