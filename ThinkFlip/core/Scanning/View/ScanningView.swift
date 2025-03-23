@@ -4,7 +4,6 @@
 //
 //  Created by Pranav on 25/01/25.
 //
-
 import SwiftUI
 
 struct ScanningView: View {
@@ -12,8 +11,9 @@ struct ScanningView: View {
     @StateObject private var svm = ScanViewModel()
     @State private var navigateToCardView = false
     @State private var navigateToTextInputView = false
-    @StateObject private var cardVM = CardViewModel() // ✅ Shared ViewModel
-    @ObservedObject var authVm:AuthViewModel
+    @State private var navigateToLibraryView = false
+    @StateObject private var cardVM = CardViewModel()
+    @ObservedObject var authVm: AuthViewModel
     
     var body: some View {
         NavigationStack {
@@ -22,17 +22,19 @@ struct ScanningView: View {
                     Text("No scanned documents yet")
                         .foregroundColor(.gray)
                 } else {
-                    List(svm.allScannedDocs) { document in
-                        NavigationLink(destination: DetailTextView(myDetailedText:document.text)){
-                            VStack(alignment: .leading) {
-                                Text(document.text)
-                                    .lineLimit(3)
-                                Text("Scanned on \(document.dateScanned, formatter: dateFormatter)")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                    List {
+                        ForEach(svm.allScannedDocs) { document in
+                            NavigationLink(destination: DetailTextView(myDetailedText: document.text)) {
+                                VStack(alignment: .leading) {
+                                    Text(document.text)
+                                        .lineLimit(3)
+                                    Text("Scanned on \(document.dateScanned, formatter: dateFormatter)")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
                             }
                         }
-                      
+                        .onDelete(perform: cardVM.deleteDocument)
                     }
                 }
                 
@@ -50,7 +52,7 @@ struct ScanningView: View {
                     VStack {
                         Button {
                             navigateToTextInputView = true
-                        }label: {
+                        } label: {
                             Text("Enter Text 📝")
                                 .padding()
                                 .frame(maxWidth: .infinity)
@@ -65,9 +67,21 @@ struct ScanningView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Welcom \(authVm.user?.name)")
+            .navigationTitle("Welcome \(authVm.user!.name)")
             .sheet(isPresented: $svm.isPresentingScanner) {
-                DocumentScannerView(viewModel: svm) // Use a proper scanner view.
+                DocumentScannerView(viewModel: svm)
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        navigateToLibraryView = true
+                    } label: {
+                        Image(systemName: "books.vertical") // Library icon
+                    }
+                }
+            }
+            .navigationDestination(isPresented: $navigateToLibraryView) {
+                LibraryView()
             }
         }
     }
@@ -81,5 +95,5 @@ struct ScanningView: View {
 }
 
 #Preview {
-    ScanningView(authVm:AuthViewModel())
+    ScanningView(authVm: AuthViewModel())
 }

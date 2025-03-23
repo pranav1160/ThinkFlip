@@ -67,3 +67,12 @@ class CardViewModel: ObservableObject {
     }
 }
 
+
+extension CardViewModel{
+    func deleteDocument(at offsets: IndexSet) {
+        for index in offsets {
+            print("Deleting document at index: \(index)")
+        }
+    }
+
+}

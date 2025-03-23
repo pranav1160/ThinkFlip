@@ -7,6 +7,10 @@ class AuthViewModel: ObservableObject {
     
     private let authService = AuthService.shared
     
+    static var authToken: String? {  // 🔥 Static JWT Token
+        UserDefaults.standard.string(forKey: "authToken")
+    }
+
     init() {
         checkSession()
     }

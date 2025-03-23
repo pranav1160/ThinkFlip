@@ -49,7 +49,7 @@ class ScanViewModel: NSObject, ObservableObject, VNDocumentCameraViewControllerD
         guard let cgImage = image.cgImage else { return }
         let request = VNRecognizeTextRequest { [weak self] request, error in
             guard let results = request.results as? [VNRecognizedTextObservation], error == nil else {
-                print("Error recognizing text: \(error?.localizedDescription ?? "Unknown error")")
+                print("❌ Error recognizing text: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
             
@@ -57,6 +57,9 @@ class ScanViewModel: NSObject, ObservableObject, VNDocumentCameraViewControllerD
             DispatchQueue.main.async {
                 let document = ScannedDocModel(text: recognizedText, dateScanned: Date())
                 self?.allScannedDocs.append(document)
+                
+                // 🔥 Save text to backend API
+                self?.saveScannedText(recognizedText)
             }
         }
         request.recognitionLevel = .accurate
@@ -66,8 +69,57 @@ class ScanViewModel: NSObject, ObservableObject, VNDocumentCameraViewControllerD
             do {
                 try handler.perform([request])
             } catch {
-                print("Failed to perform text recognition: \(error.localizedDescription)")
+                print("❌ Failed to perform text recognition: \(error.localizedDescription)")
             }
         }
     }
+
 }
+
+
+extension ScanViewModel {
+    func saveScannedText(_ text: String) {
+        let apiURL = "https://thinkflip-backend.onrender.com/history/save-document"
+        guard let url = URL(string: apiURL) else {
+            print("❌ Invalid URL")
+            return
+        }
+        
+        // ✅ Fetch token from UserDefaults (since you stored it after login)
+        guard let token = UserDefaults.standard.string(forKey: "authToken") else {
+            print("❌ No auth token found, user might not be logged in")
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("\(token)", forHTTPHeaderField: "authorization") // 🔥 Correct token format
+        
+        let body: [String: String] = ["content": text]
+        do {
+            request.httpBody = try JSONEncoder().encode(body)
+        } catch {
+            print("❌ Encoding error: \(error.localizedDescription)")
+            return
+        }
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("❌ Network error: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let data = data else {
+                print("❌ No data received from API")
+                return
+            }
+            
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("✅ Successfully saved document: \(responseString)")
+            }
+        }.resume()
+    }
+}
+
+
