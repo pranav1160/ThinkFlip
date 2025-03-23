@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct ThinkFlipApp: App {
+    
     var body: some Scene {
         WindowGroup {
-            ScanningView()
+            RootView()
         }
     }
+    
 }

@@ -9,6 +9,7 @@ struct SingleCardRotView: View {
     let imageUrl: String
     
     var body: some View {
+        
         ZStack {
             // **Front Side - Title & Body**
             frontSide
@@ -20,7 +21,7 @@ struct SingleCardRotView: View {
                 .opacity(isFlipped ? 1 : 0)
                 .rotation3DEffect(.degrees(isFlipped ? 0 : 180), axis: (x: 0, y: 1, z: 0))
         }
-        .frame(width: 350, height: 450)
+        .frame(width: 350, height: 460)
         .clipShape(RoundedRectangle(cornerRadius: 24))
         .shadow(radius: 8)
         .onTapGesture {
@@ -28,6 +29,7 @@ struct SingleCardRotView: View {
                 isFlipped.toggle()
             }
         }
+        
     }
     
     // **Front Side (Title + Body)**

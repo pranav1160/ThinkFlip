@@ -13,6 +13,7 @@ struct ScanningView: View {
     @State private var navigateToCardView = false
     @State private var navigateToTextInputView = false
     @StateObject private var cardVM = CardViewModel() // ✅ Shared ViewModel
+    @ObservedObject var authVm:AuthViewModel
     
     var body: some View {
         NavigationStack {
@@ -64,7 +65,7 @@ struct ScanningView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Document Scanner")
+            .navigationTitle("Welcom \(authVm.user?.name)")
             .sheet(isPresented: $svm.isPresentingScanner) {
                 DocumentScannerView(viewModel: svm) // Use a proper scanner view.
             }
@@ -80,5 +81,5 @@ struct ScanningView: View {
 }
 
 #Preview {
-    ScanningView()
+    ScanningView(authVm:AuthViewModel())
 }
