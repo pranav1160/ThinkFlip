@@ -7,6 +7,7 @@ struct SingleCardRotView: View {
     let bodyText: String
     let frontColor: Color
     let imageUrl: String
+    let accuracy:Float
     
     var body: some View {
         
@@ -35,6 +36,7 @@ struct SingleCardRotView: View {
     // **Front Side (Title + Body)**
     private var frontSide: some View {
         VStack(spacing: 15) {
+            Spacer()
             Text(title)
                 .font(.title2)
                 .fontWeight(.bold)
@@ -49,6 +51,21 @@ struct SingleCardRotView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)
+            
+            Spacer()
+            
+            HStack{
+                Spacer()
+                Text(
+                    String(
+                        format: "%.2f%%",
+                        accuracy+Float.random(in: 0.01...0.99)
+                    )
+                )
+                    .font(.title3)
+                    .foregroundStyle(.white)
+                    .padding()
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(frontColor)
@@ -91,6 +108,6 @@ struct SingleCardRotView: View {
         title: "Explore the World",
         bodyText: "Discover new places, experiences, and cultures through our immersive platform.",
         frontColor: .blue,
-        imageUrl: "https://source.unsplash.com/random/400x500"
+        imageUrl: "https://source.unsplash.com/random/400x500", accuracy: 0.987
     )
 }

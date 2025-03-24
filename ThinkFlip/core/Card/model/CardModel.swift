@@ -12,6 +12,7 @@ struct CardModel:Codable{
     let title:String
     let description:String
     let imageUrl:String
+    let accuracy:Float
 }
 
 

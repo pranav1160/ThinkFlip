@@ -16,7 +16,7 @@ class AuthViewModel: ObservableObject {
     }
     
     func checkSession() {
-        if let token = UserDefaults.standard.string(forKey: "authToken"),
+        if let _ = UserDefaults.standard.string(forKey: "authToken"),
            let savedUserData = UserDefaults.standard.data(forKey: "currentUser"),
            let savedUser = try? JSONDecoder().decode(UserModel.self, from: savedUserData) {
             isAuthenticated = true

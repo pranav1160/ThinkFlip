@@ -3,6 +3,7 @@ import SwiftUI
 struct TextInputView: View {
     @ObservedObject var viewModel: CardViewModel
     @State private var userInput: String = ""
+    @State private var btnClicked:Bool = false
     
     var body: some View {
         VStack(spacing: 20) {
@@ -27,7 +28,10 @@ struct TextInputView: View {
             
             // Send Button
             Button {
+                
                 viewModel.sendMessage(text: userInput)
+                btnClicked = true
+                
             } label: {
                 Text("Generate FlashCard")
                     .font(.headline)
@@ -37,6 +41,8 @@ struct TextInputView: View {
                     .foregroundColor(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 15))
                     .shadow(radius: 3)
+                    .opacity(btnClicked ? 0.65 : 1 )
+                    
             }
             .padding(.horizontal)
             
@@ -44,14 +50,23 @@ struct TextInputView: View {
             
             // Card Stack View
             VStack(alignment: .center) {
-                if !viewModel.articles.isEmpty {
+                if (!viewModel.articles.isEmpty) {
+                    
                     CardStackView(
                         allArticles: viewModel.articles,
                         colors: generateColors(count: viewModel.articles.count)
                     )
                     .frame(height: 400)
                     .transition(.opacity)
-                } else {
+                    .onAppear {
+                        btnClicked = false // Reset btnClicked when articles are received
+                    }
+                }
+                else if (viewModel.articles.isEmpty && btnClicked==true )
+                {
+                    ProgressView()
+                }
+                 else {
                     VStack {
                         Image(systemName: "rectangle.stack.badge.plus")
                             .resizable()
