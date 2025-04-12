@@ -12,6 +12,7 @@ struct ScanningView: View {
     @State private var navigateToCardView = false
     @State private var navigateToTextInputView = false
     @State private var navigateToLibraryView = false
+    @State private var navigateToRootView = false // Added for navigation to RootView
     @StateObject private var cardVM = CardViewModel()
     @ObservedObject var authVm: AuthViewModel
     
@@ -67,11 +68,21 @@ struct ScanningView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Welcome \(authVm.user!.name)")
+            .navigationTitle("Welcome \(authVm.user?.name ?? "Guest")")
             .sheet(isPresented: $svm.isPresentingScanner) {
                 DocumentScannerView(viewModel: svm)
             }
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        authVm.logout()  // Call your logout method
+                        navigateToRootView = true  // Navigate to RootView after logout
+                    } label: {
+                        Text("Logout")
+                            .foregroundColor(.red)
+                    }
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         navigateToLibraryView = true
@@ -83,6 +94,9 @@ struct ScanningView: View {
             .navigationDestination(isPresented: $navigateToLibraryView) {
                 LibraryView()
             }
+            .navigationDestination(isPresented: $navigateToRootView) {
+                RootView() // Navigate to RootView
+            }
         }
     }
     
@@ -93,6 +107,7 @@ struct ScanningView: View {
         return formatter
     }
 }
+
 
 #Preview {
     ScanningView(authVm: AuthViewModel())
