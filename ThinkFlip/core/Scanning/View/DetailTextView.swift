@@ -2,17 +2,22 @@ import SwiftUI
 
 struct DetailTextView: View {
     @StateObject private var cardVM = CardViewModel()
-    @StateObject private var quizVM = QuizViewModel() // ✅ Quiz ViewModel
+    @StateObject private var quizVM = QuizViewModel()
     
     @State private var navigateToCardView = false
     @State private var navigateToQuizView = false
+    
+    @State private var showCardInputSheet = false
+    @State private var showQuizInputSheet = false
+    
+    @State private var numberOfCards = ""
+    @State private var numberOfQuestions = ""
     
     let myDetailedText: String
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                // **Scrollable Text View**
                 ScrollView {
                     Text(myDetailedText)
                         .font(.body)
@@ -30,10 +35,8 @@ struct DetailTextView: View {
                 
                 Spacer()
                 
-                // **Create Card Button**
                 Button {
-                    cardVM.sendMessage(text: myDetailedText)
-                    navigateToCardView = true
+                    showCardInputSheet = true
                 } label: {
                     Text("Create Card")
                         .font(.headline)
@@ -46,11 +49,8 @@ struct DetailTextView: View {
                 }
                 .padding(.horizontal)
                 
-                // ✅ Start Quiz Button
                 Button {
-                    print("Fetching quiz with text: \(myDetailedText)") 
-                    quizVM.fetchQuiz(from: myDetailedText)
-                    navigateToQuizView = true
+                    showQuizInputSheet = true
                 } label: {
                     Text("Start Quiz")
                         .font(.headline)
@@ -69,11 +69,26 @@ struct DetailTextView: View {
             .navigationDestination(isPresented: $navigateToQuizView) {
                 MCQView(viewModel: quizVM)
             }
+            .sheet(isPresented: $showCardInputSheet) {
+                NumberInputSheet(title: "How many cards?", value: $numberOfCards) {
+                    if let count = Int(numberOfCards), count > 0 {
+                        cardVM
+                            .sendMessage(text: myDetailedText, number: count)
+                        navigateToCardView = true
+                    }
+                    showCardInputSheet = false
+                }
+            }
+            .sheet(isPresented: $showQuizInputSheet) {
+                NumberInputSheet(title: "How many quiz questions?", value: $numberOfQuestions) {
+                    if let count = Int(numberOfQuestions), count > 0 {
+                        quizVM.fetchQuiz(from: myDetailedText, number: count)
+                        navigateToQuizView = true
+                    }
+                    showQuizInputSheet = false
+                }
+            }
             .padding()
         }
     }
-}
-
-#Preview {
-    DetailTextView(myDetailedText: "One Piece** is a popular Japanese manga and anime series created by Eiichiro Oda. It follows the adventures of Monkey D. Luffy, a young pirate with the ability to stretch his body like rubber after eating a mysterious fruit known as the Gum-Gum Fruit. Luffy and his diverse crew of pirates, known as the Straw Hat Pirates, sail the Grand Line in search of the legendary treasure called One Piece, which will make Luffy the Pirate King. The series is renowned for its rich world-building, emotional depth, and unique characters, blending action, humor, and heart-wrenching moments. Over the years, **One Piece** has become one of the most successful and influential anime and manga series worldwide.")
 }

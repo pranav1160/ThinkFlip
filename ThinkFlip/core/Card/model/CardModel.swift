@@ -20,6 +20,7 @@ struct CardModel:Codable{
 struct MessageRequest: Codable {
     let modelType: String
     let prompt: String
+    let number:Int
 }
 
 

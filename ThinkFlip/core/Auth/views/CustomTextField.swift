@@ -12,6 +12,7 @@ struct CustomTextField: View {
     @Binding var text: String
     let placeholder: Text
     let imgName:String
+    let isSecure:Bool
     
     var body: some View {
         ZStack(alignment: .leading) {
@@ -27,11 +28,18 @@ struct CustomTextField: View {
                     .scaledToFit()
                     .frame(width: 20, height: 20)
                     .foregroundColor(.white.opacity(0.8))
+                if isSecure == true {
+                    SecureField("", text: $text)
+                        .foregroundColor(.white)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                }else{
+                    TextField("", text: $text)
+                        .foregroundColor(.white)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                }
                 
-                TextField("", text: $text)
-                    .foregroundColor(.white)
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
             }
             .padding(12)
             .background(Color.white.opacity(0.15)) // ✅ Apply background here
@@ -51,7 +59,7 @@ struct CustomTextField: View {
         CustomTextField(
             text: .constant(""),
             placeholder: Text("Email"),
-            imgName: "wind"
+            imgName: "wind", isSecure: false
         )
             .padding()
     }

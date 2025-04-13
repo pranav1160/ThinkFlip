@@ -12,10 +12,10 @@ class CardViewModel: ObservableObject {
     
     private let apiURL = "https://thinkflip-backend.onrender.com/gemini"
     
-    func sendMessage(text: String) {
+    func sendMessage(text: String,number:Int) {
         guard let url = URL(string: apiURL) else { return }
         
-        let request = createPostRequest(url: url, text: text)
+        let request = createPostRequest(url: url, text: text, number: number)
         
         performRequest(request) { [weak self] result in
             DispatchQueue.main.async {
@@ -29,12 +29,16 @@ class CardViewModel: ObservableObject {
         }
     }
     
-    private func createPostRequest(url: URL, text: String) -> URLRequest {
+    private func createPostRequest(url: URL, text: String,number:Int) -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let body = MessageRequest(modelType: "text_only", prompt: text)
+        let body = MessageRequest(
+            modelType: "text_only",
+            prompt: text,
+            number:number
+        )
         
         do {
             request.httpBody = try JSONEncoder().encode(body)

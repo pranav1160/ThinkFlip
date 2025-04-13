@@ -56,14 +56,15 @@ class QuizViewModel: ObservableObject {
     
 
     
-    func fetchQuiz(from text: String) {
+    func fetchQuiz(from text: String,number:Int) {
         guard let url = URL(string: "https://thinkflip-backend.onrender.com/gemini/mcq") else {
             return
         }
         
         let payload: [String: Any] = [
             "modelType": "text_only",
-            "prompt": text
+            "prompt": text,
+            "number":number
         ]
         
         guard let jsonData = try? JSONSerialization.data(withJSONObject: payload) else {
