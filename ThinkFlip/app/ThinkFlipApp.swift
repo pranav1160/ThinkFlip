@@ -6,14 +6,21 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct ThinkFlipApp: App {
-    
+    @StateObject var cardVM = CardViewModel()
     var body: some Scene {
         WindowGroup {
-            RootView()
+            ScanningView()
+                .environmentObject(cardVM)
+                .modelContainer(for: [CardModel.self, MessageResponse.self]) // 👈 Add this
         }
+    }
+    
+    init() {
+        print(URL.applicationSupportDirectory.path(percentEncoded: false))
     }
     
 }

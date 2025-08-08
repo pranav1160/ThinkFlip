@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct TextInputView: View {
-    @ObservedObject var viewModel: CardViewModel
+    @EnvironmentObject var viewModel: CardViewModel
     @StateObject private var quizViewModel = QuizViewModel()
     
     @State private var userInput: String = ""
@@ -13,6 +13,7 @@ struct TextInputView: View {
     @State private var showCardInputSheet = false
     @State private var showQuizInputSheet = false
     @State private var navigateToQuiz = false
+    @State private var navigateToCardStack = false
     
     var body: some View {
         NavigationStack {
@@ -66,41 +67,44 @@ struct TextInputView: View {
                 
                 Spacer()
                 
-                // Card Stack
-                VStack(alignment: .center) {
-                    if !viewModel.articles.isEmpty {
-                        CardStackView(
-                            allArticles: viewModel.articles,
-                            colors: generateColors(count: viewModel.articles.count)
-                        )
-                        .frame(height: 400)
-                        .transition(.opacity)
-                        .onAppear {
-                            btnClicked = false
-                        }
-                    } else if viewModel.articles.isEmpty && btnClicked {
-                        ProgressView()
-                    } else {
-                        VStack {
-                            Image(systemName: "rectangle.stack.badge.plus")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 80, height: 80)
-                                .foregroundColor(.gray.opacity(0.5))
-                            
-                            Text("No FlashCards yet...")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                                .padding(.top, 5)
-                        }
-                        .padding()
-                    }
-                }
-                .frame(maxHeight: 450)
+//                // Card Stack
+//                VStack(alignment: .center) {
+//                    if !viewModel.articles.isEmpty {
+//                        CardStackView(
+//                            allArticles: viewModel.articles,
+//                            colors: generateColors(count: viewModel.articles.count)
+//                        )
+//                        .frame(height: 400)
+//                        .transition(.opacity)
+//                        .onAppear {
+//                            btnClicked = false
+//                        }
+//                    } else if viewModel.articles.isEmpty && btnClicked {
+//                        ProgressView()
+//                    } else {
+//                        VStack {
+//                            Image(systemName: "rectangle.stack.badge.plus")
+//                                .resizable()
+//                                .scaledToFit()
+//                                .frame(width: 80, height: 80)
+//                                .foregroundColor(.gray.opacity(0.5))
+//                            
+//                            Text("No FlashCards yet...")
+//                                .font(.subheadline)
+//                                .foregroundColor(.gray)
+//                                .padding(.top, 5)
+//                        }
+//                        .padding()
+//                    }
+//                }
+//                .frame(maxHeight: 450)
                 
                 Spacer()
             }
             .padding()
+            .sheet(isPresented: $navigateToCardStack, content: {
+                CardStackView(allArticles: viewModel.articles, colors: generateColors(count: viewModel.articles.count))
+            })
             .sheet(isPresented: $showCardInputSheet) {
                 NumberInputSheet(title: "How many cards?", value: $numberOfCards) {
                     if let count = Int(numberOfCards), count > 0 {
@@ -108,6 +112,7 @@ struct TextInputView: View {
                         btnClicked = true
                     }
                     showCardInputSheet = false
+                    navigateToCardStack = true
                 }
             }
             .sheet(isPresented: $showQuizInputSheet) {
@@ -134,5 +139,5 @@ struct TextInputView: View {
 }
 
 #Preview {
-    TextInputView(viewModel: CardViewModel())
+    TextInputView()
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct CardView: View {
-    @ObservedObject var viewModel: CardViewModel
+    @EnvironmentObject var viewModel: CardViewModel
     @State private var userInput: String = ""
     
     var body: some View {
@@ -32,6 +32,7 @@ struct CardView: View {
     }
 }
 
+
 #Preview {
-    CardView(viewModel: CardViewModel())
+    CardView()
 }

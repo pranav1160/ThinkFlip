@@ -8,95 +8,91 @@ import SwiftUI
 
 struct ScanningView: View {
     
+    @Environment(\.modelContext) private var context
     @StateObject private var svm = ScanViewModel()
     @State private var navigateToCardView = false
     @State private var navigateToTextInputView = false
     @State private var navigateToLibraryView = false
-    @State private var navigateToRootView = false // Added for navigation to RootView
-    @StateObject private var cardVM = CardViewModel()
-    @ObservedObject var authVm: AuthViewModel
+    @State private var navigateToRootView = false
+    @EnvironmentObject var cardVM: CardViewModel
+   
     
     var body: some View {
         NavigationStack {
-            VStack {
-                if svm.allScannedDocs.isEmpty {
-                    Text("No scanned documents yet")
-                        .foregroundColor(.gray)
-                } else {
-                    List {
-                        ForEach(svm.allScannedDocs) { document in
-                            NavigationLink(destination: DetailTextView(myDetailedText: document.text)) {
-                                VStack(alignment: .leading) {
-                                    Text(document.text)
-                                        .lineLimit(3)
-                                    Text("Scanned on \(document.dateScanned, formatter: dateFormatter)")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
+            ZStack {
+                Color.black
+                    .ignoresSafeArea()
+                
+                VStack {
+                    if svm.allScannedDocs.isEmpty {
+                        Text("No scanned documents yet")
+                            .foregroundColor(.gray)
+                    } else {
+                        List {
+                            ForEach(svm.allScannedDocs) { document in
+                                NavigationLink(destination: DetailTextView(myDetailedText: document.text)) {
+                                    VStack(alignment: .leading) {
+                                        Text(document.text)
+                                            .lineLimit(3)
+                                        Text("Scanned on \(document.dateScanned, formatter: dateFormatter)")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
                             }
+                            .onDelete(perform: svm.deleteDocument)
                         }
-                        .onDelete(perform: cardVM.deleteDocument)
                     }
+                    
+                    Button(action: svm.startScanning) {
+                        Text("Scan Document")
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                    }
+                    .padding()
+                    
+                    NavigationStack {
+                        VStack {
+                            Button {
+                                navigateToTextInputView = true
+                            } label: {
+                                Text("Enter Text 📝")
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8)
+                            }
+                        }
+                        .navigationDestination(isPresented: $navigateToTextInputView) {
+                            TextInputView()
+                        }
+                    }
+                    .padding()
+                }
+                .navigationTitle("Welcome User")
+                .sheet(isPresented: $svm.isPresentingScanner) {
+                    DocumentScannerView(viewModel: svm)
                 }
                 
-                Button(action: svm.startScanning) {
-                    Text("Scan Document")
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+                .navigationDestination(isPresented: $navigateToLibraryView) {
+                    LibraryView()
                 }
-                .padding()
-                
-                NavigationStack {
-                    VStack {
-                        Button {
-                            navigateToTextInputView = true
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        NavigationLink {
+                            LibraryView()
                         } label: {
-                            Text("Enter Text 📝")
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
+                            Image(systemName: "book")
                         }
-                    }
-                    .navigationDestination(isPresented: $navigateToTextInputView) {
-                        TextInputView(viewModel: cardVM)
-                    }
-                }
-                .padding()
-            }
-            .navigationTitle("Welcome \(authVm.user?.name ?? "Guest")")
-            .sheet(isPresented: $svm.isPresentingScanner) {
-                DocumentScannerView(viewModel: svm)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        authVm.logout()  // Call your logout method
-                        navigateToRootView = true  // Navigate to RootView after logout
-                    } label: {
-                        Text("Logout")
-                            .foregroundColor(.red)
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        navigateToLibraryView = true
-                    } label: {
-                        Image(systemName: "books.vertical") // Library icon
+
                     }
                 }
             }
-            .navigationDestination(isPresented: $navigateToLibraryView) {
-                LibraryView()
-            }
-            .navigationDestination(isPresented: $navigateToRootView) {
-                RootView() // Navigate to RootView
-            }
+          
         }
     }
     
@@ -110,5 +106,5 @@ struct ScanningView: View {
 
 
 #Preview {
-    ScanningView(authVm: AuthViewModel())
+    ScanningView()
 }

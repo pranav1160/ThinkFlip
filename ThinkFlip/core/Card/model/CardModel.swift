@@ -4,26 +4,41 @@
 //
 //  Created by Pranav on 30/01/25.
 //
-
 import Foundation
+import SwiftData
 
-struct CardModel:Codable{
- 
-    let title:String
-    let description:String
-    let imageUrl:String
-    let accuracy:Float
+
+@Model
+class CardModel {
+    var title: String
+    var cardDescription: String
+    
+    @Relationship(inverse: \MessageResponse.result)
+    var response: MessageResponse?
+    
+    init(title: String, description: String, response: MessageResponse? = nil) {
+        self.title = title
+        self.cardDescription = description
+        self.response = response
+    }
 }
 
 
-
-struct MessageRequest: Codable {
-    let modelType: String
-    let prompt: String
-    let number:Int
+// DTO for decoding JSON from API
+struct CardModelDTO: Codable {
+    let title: String
+    let description: String
 }
 
 
-struct MessageResponse: Codable {
-    let result: [CardModel]
+extension CardModelDTO {
+    func toModel(context: ModelContext, response: MessageResponse? = nil) -> CardModel {
+        let card = CardModel(
+            title: title,
+            description: description,
+            response: response
+        )
+        context.insert(card)
+        return card
+    }
 }

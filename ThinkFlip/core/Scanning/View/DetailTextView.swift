@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct DetailTextView: View {
-    @StateObject private var cardVM = CardViewModel()
+    @EnvironmentObject var cardVM: CardViewModel
     @StateObject private var quizVM = QuizViewModel()
     
     @State private var navigateToCardView = false
@@ -64,7 +64,7 @@ struct DetailTextView: View {
                 .padding(.horizontal)
             }
             .navigationDestination(isPresented: $navigateToCardView) {
-                CardView(viewModel: cardVM)
+                CardView()
             }
             .navigationDestination(isPresented: $navigateToQuizView) {
                 MCQView(viewModel: quizVM)

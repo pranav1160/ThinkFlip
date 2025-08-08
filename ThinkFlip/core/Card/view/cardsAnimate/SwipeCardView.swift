@@ -6,7 +6,7 @@
 //
 
 
-
+//you good
 import SwiftUI
 
 struct SwipeCardView: View {
@@ -18,8 +18,6 @@ struct SwipeCardView: View {
     let title:String
     let bodyText:String
     let frontColor:Color
-    let imgUrl:String
-    let accuracy:Float
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -28,9 +26,7 @@ struct SwipeCardView: View {
                 SingleCardRotView(
                     title: title,
                     bodyText: bodyText,
-                    frontColor: frontColor,
-                    imageUrl: imgUrl,
-                    accuracy: accuracy
+                    frontColor: frontColor
                 )
                     .frame(width: SizeConstants.cardWidth,height: SizeConstants.cardHeight)
                 
@@ -101,8 +97,6 @@ private extension SwipeCardView{
     SwipeCardView(
         title: "hola",
         bodyText: "Prow scuttle parrel provost Sail ho shrouds spirits boom mizzenmast yardarm. Pinnace holystone mizzenmast quarter crow's nest nipperkin grog yardarm hempen halter furl. Swab barque interloper chantey doubloon starboard grog black jack gangway rutters.Deadlights jack lad schooner scallywag dance the hempen jig carouser broadside cable strike colors. Bring a spring upon her cable holystone",
-        frontColor: .green,
-        imgUrl: "https://imgs.search.brave.com/CJ46IPPJjBvaPp4kW6NNUEW_bvgKKdDVAguUIpZjaGw/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9za3li/bHVlLmNvbS93cC1j/b250ZW50L3VwbG9h/ZHMvMjAyMS8wMy9w/aWMtcG9wdXAtd2Vs/bC1kb25lLnBuZw",
-        accuracy: 98.4
+        frontColor: .green
     )
 }

@@ -1,63 +1,87 @@
 import SwiftUI
+import SwiftData
 
 struct LibraryView: View {
-    @StateObject private var libVm = LibraryViewModel()
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
     
-    let columns = [
-        GridItem(.flexible(), spacing: 16),
-        GridItem(.flexible(), spacing: 16)
-    ]
+    @Query private var savedDecks: [MessageResponse]
+    @State private var selectedDeck: MessageResponse?
     
     var body: some View {
         NavigationStack {
-            VStack {
-                if libVm.isLoading {
-                    ProgressView("Loading history...")
-                        .padding()
-                } else if let errorMessage = libVm.errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .padding()
-                } else if libVm.history.isEmpty {
+      
+                if savedDecks.isEmpty {
                     EmptyStateView()
+                    
                 } else {
-                    ScrollView {
-                        LazyVGrid(columns: columns, spacing: 16) {
-                            ForEach(libVm.history, id: \.id) { document in
-                                NavigationLink(destination: DetailTextView(myDetailedText: document.content)) {
-                                    HistoryCardView(document: document)
-                                }
+                    List {
+                        ForEach(savedDecks) { deck in
+                            NavigationLink {
+                                LibraryStackView(
+                                    deck: deck, // pass actual object
+                                    colors: [.red, .blue, .green, .purple, .orange, .pink, .teal]
+                                )
+                            } label: {
+                                DeckSectionView(deck: deck)
                             }
                         }
-                        .padding()
                     }
                 }
             }
-            .navigationTitle("Scan History")
-            .onAppear { libVm.fetchHistory() }
+            .navigationTitle("Saved Decks")
+            
+            
         }
+    
+}
+
+struct DeckSectionView: View {
+    let deck: MessageResponse
+    let colors: [Color] = [.red, .blue, .green, .purple, .orange, .pink, .teal]
+    
+    var body: some View {
+        HStack {
+            Text(deckTitle)
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(colors.randomElement() ?? .blue)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+        .listRowSeparator(.hidden)
+    }
+    
+    private var deckTitle: String {
+        if let firstCard = deck.result.first {
+            return firstCard.title.isEmpty ? "Untitled Deck" : firstCard.title
+        }
+        return "Untitled Deck"
     }
 }
 
+
 struct HistoryCardView: View {
-    let document: ScannedDoc
+    let deck: CardModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(document.content)
-                .font(.body)
-                .lineLimit(4)
+            Text(deck.title)
+                .font(.headline)
                 .foregroundColor(.primary)
             
-            Text("Scanned on \(document.date)")
-                .font(.caption)
+            Text(deck.cardDescription)
+                .font(.subheadline)
                 .foregroundColor(.secondary)
             
             Spacer()
         }
         .padding()
         .frame(maxWidth: .infinity, minHeight: 100, maxHeight: 150)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray6)))
+        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemGray5)))
         .shadow(radius: 2)
     }
 }

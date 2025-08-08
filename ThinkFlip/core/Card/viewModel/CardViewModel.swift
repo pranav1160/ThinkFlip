@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import SwiftData
 
 class CardViewModel: ObservableObject {
-    @Published var articles: [CardModel] = []
+    @Published var articles: [CardModelDTO] = []
     
     private let apiURL = "https://thinkflip-backend.onrender.com/gemini"
     
@@ -49,8 +50,14 @@ class CardViewModel: ObservableObject {
         return request
     }
     
-    private func performRequest(_ request: URLRequest, completion: @escaping (Result<MessageResponse, Error>) -> Void) {
-        URLSession.shared.dataTask(with: request) { data, response, error in
+    private func performRequest(
+        _ request: URLRequest,
+        completion: @escaping (Result<MessageResponseDTO, Error>) -> Void
+    ) {
+        URLSession.shared.dataTask(with: request) {
+            data,
+            response,
+            error in
             if let error = error {
                 completion(.failure(error))
                 return
@@ -62,21 +69,17 @@ class CardViewModel: ObservableObject {
             }
             
             do {
-                let decodedResponse = try JSONDecoder().decode(MessageResponse.self, from: data)
+                let decodedResponse = try JSONDecoder().decode(
+                    MessageResponseDTO.self,
+                    from: data
+                )
                 completion(.success(decodedResponse))
             } catch {
                 completion(.failure(error))
             }
         }.resume()
     }
+
+    
 }
 
-
-extension CardViewModel{
-    func deleteDocument(at offsets: IndexSet) {
-        for index in offsets {
-            print("Deleting document at index: \(index)")
-        }
-    }
-
-}
