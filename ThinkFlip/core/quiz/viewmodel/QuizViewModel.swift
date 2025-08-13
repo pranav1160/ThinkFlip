@@ -8,13 +8,15 @@
 
 import Foundation
 import Combine
+import SwiftData
 
 class QuizViewModel: ObservableObject {
+    @Published var quizTitle:String?
     @Published var questions: [Question] = []
     @Published var currentQuestionIndex: Int = 0
     @Published var selectedOption: String?
     @Published var showExplanation: Bool = false
-    @Published var answerSubmitted: Bool = false  // Added missing property
+    @Published var answerSubmitted: Bool = false
     @Published var isLoading = false
     @Published var score: Int = 0  // Track user's score
     private var cancellables = Set<AnyCancellable>()
@@ -103,12 +105,10 @@ class QuizViewModel: ObservableObject {
                 print("📦 Raw response:\n\(rawString)")
             }
             
-            struct APIResponse: Codable {
-                let result: [Question]
-            }
+            
             
             do {
-                let decoded = try JSONDecoder().decode(APIResponse.self, from: data)
+                let decoded = try JSONDecoder().decode(QuizResponseDTO.self, from: data)
                 DispatchQueue.main.async {
                     self.questions = decoded.result
                     print("✅ Decoded \(decoded.result.count) questions")
@@ -120,6 +120,30 @@ class QuizViewModel: ObservableObject {
             
         }.resume()
     }
+    
+ 
+
+
+    func saveQuizToSwiftData(context: ModelContext) {
+        guard let title = quizTitle, !title.isEmpty else {
+            print("❌ No quiz title set")
+            return
+        }
+        
+        let quizModel = QuizResponseDTO(result: questions).toModel(
+            withTitle: title
+        )
+        
+        do {
+            context.insert(quizModel)
+            try context.save()
+            print("✅ Quiz saved: \(title)")
+        } catch {
+            print("❌ Failed to save quiz: \(error)")
+        }
+    }
+
+
 
 }
 

@@ -1,7 +1,8 @@
 import SwiftUI
 import SwiftData
 
-struct LibraryView: View {
+
+struct CardLibraryView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
     
@@ -10,35 +11,30 @@ struct LibraryView: View {
     
     var body: some View {
         NavigationStack {
-      
-                if savedDecks.isEmpty {
-                    EmptyStateView()
-                    
-                } else {
-                    List {
-                        ForEach(savedDecks) { deck in
-                            NavigationLink {
-                                LibraryStackView(
-                                    deck: deck, // pass actual object
-                                    colors: [.red, .blue, .green, .purple, .orange, .pink, .teal]
-                                )
-                            } label: {
-                                DeckSectionView(deck: deck)
-                            }
+            if savedDecks.isEmpty {
+                EmptyStateView()
+                
+            } else {
+                List {
+                    ForEach(savedDecks) { deck in
+                        NavigationLink {
+                            LibraryStackView(
+                                deck: deck, // pass actual object
+                                colors: [.red, .blue, .green, .purple, .orange, .pink, .teal]
+                            )
+                        } label: {
+                            DeckSectionView(deck: deck)
                         }
                     }
                 }
             }
-            .navigationTitle("Saved Decks")
-            
-            
         }
-    
+        .navigationTitle("Saved Decks")
+    }
 }
 
 struct DeckSectionView: View {
     let deck: MessageResponse
-    let colors: [Color] = [.red, .blue, .green, .purple, .orange, .pink, .teal]
     
     var body: some View {
         HStack {
@@ -48,7 +44,6 @@ struct DeckSectionView: View {
                 .padding(.vertical, 12)
                 .padding(.horizontal, 16)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(colors.randomElement() ?? .blue)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
@@ -62,7 +57,6 @@ struct DeckSectionView: View {
         return "Untitled Deck"
     }
 }
-
 
 struct HistoryCardView: View {
     let deck: CardModel
@@ -106,7 +100,6 @@ struct EmptyStateView: View {
         .padding()
     }
 }
-
 #Preview {
-    LibraryView()
+    CardLibraryView()
 }

@@ -13,9 +13,14 @@ struct ThinkFlipApp: App {
     @StateObject var cardVM = CardViewModel()
     var body: some Scene {
         WindowGroup {
-            ScanningView()
+            ContentView()
                 .environmentObject(cardVM)
-                .modelContainer(for: [CardModel.self, MessageResponse.self]) // 👈 Add this
+                .modelContainer(for: [
+                    CardModel.self,
+                    MessageResponse.self,
+                    QuizResponseModel.self,
+                    QuestionModel.self
+                ])
         }
     }
     

@@ -8,6 +8,8 @@ import SwiftUI
 
 struct ScanningView: View {
     
+    @AppStorage("userName") private var userName: String = ""
+    
     @Environment(\.modelContext) private var context
     @StateObject private var svm = ScanViewModel()
     @State private var navigateToCardView = false
@@ -73,23 +75,29 @@ struct ScanningView: View {
                     }
                     .padding()
                 }
-                .navigationTitle("Welcome User")
+                .navigationTitle("Welcome \(userName)")
                 .sheet(isPresented: $svm.isPresentingScanner) {
                     DocumentScannerView(viewModel: svm)
-                }
-                
-                .navigationDestination(isPresented: $navigateToLibraryView) {
-                    LibraryView()
                 }
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         NavigationLink {
-                            LibraryView()
+                            MainLibraryView()
                         } label: {
                             Image(systemName: "book")
                         }
 
                     }
+                    
+                    ToolbarItem(placement: .topBarLeading) {
+                        NavigationLink {
+                            ProfileEditView()
+                        } label: {
+                            Image(systemName: "person.circle")
+                        }
+                        
+                    }
+                    
                 }
             }
           

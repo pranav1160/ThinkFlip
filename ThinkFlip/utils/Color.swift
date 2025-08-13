@@ -17,4 +17,5 @@ struct CustomColors{
     let blue3 = Color("Blue3")
     let background1 = Color("background1")
     let background2 = Color("background2")
+    let ligthPink = Color("LightPink")
 }

@@ -13,9 +13,13 @@ struct LibraryStackView: View {
     let colors: [Color]
     @Environment(\.modelContext) private var context
     
+    // Track the current top card index and swiped cards
+    @State private var currentTopIndex: Int = 0
+    @State private var swipedCards: Set<Int> = []
+    
     var body: some View {
         if deck.result.isEmpty {
-            VStack{
+            VStack {
                 ProgressView()
                 
                 Button {
@@ -29,14 +33,11 @@ struct LibraryStackView: View {
                         .clipShape(.capsule)
                 }
             }
-           
         } else {
             VStack {
                 ZStack {
-                    ForEach(
-                        deck.result.indices.reversed(),
-                        id: \.self
-                    ) { index in
+                    // Generate views with circular positioning
+                    ForEach(deck.result.indices, id: \.self) { index in
                         cardView(for: index)
                     }
                 }
@@ -77,23 +78,54 @@ struct LibraryStackView: View {
         }
     }
     
-    private func cardView(for index: Int) -> some View {
-        let article = deck.result[index]
-        let color = colors[index % colors.count]
-        let rotation = Angle(degrees: Double(index - deck.result.count / 2) * 1.5)
-        let offsetX = CGFloat(index - deck.result.count / 2) * 5
-        let offsetY = CGFloat(index) * 1.5
-        let scale = 1 - CGFloat(index) * 0.01
+    // Calculate the display position of each card in the circular stack
+    private func getDisplayIndex(for originalIndex: Int) -> Int {
+        let totalCards = deck.result.count
+        let relativePosition = (originalIndex - currentTopIndex + totalCards) % totalCards
+        return relativePosition
+    }
+    
+    // Updated cardView function with circular logic
+    private func cardView(for originalIndex: Int) -> some View {
+        let article = deck.result[originalIndex]
+        let color = colors[originalIndex % colors.count]
+        let displayIndex = getDisplayIndex(for: originalIndex)
+        
+        // Only show a limited number of cards in the stack (e.g., top 5)
+        let maxVisibleCards = min(5, deck.result.count)
+        let isVisible = displayIndex < maxVisibleCards
+        
+        let rotation = Angle(degrees: Double(displayIndex - maxVisibleCards / 2) * 1.5)
+        let offsetX = CGFloat(displayIndex - maxVisibleCards / 2) * 5
+        let offsetY = CGFloat(displayIndex) * 1.5
+        let scale = 1 - CGFloat(displayIndex) * 0.01
         
         return SwipeCardView(
             title: article.title,
             bodyText: article.cardDescription,
-            frontColor: color
+            frontColor: color,
+            onSwipeLeft: { handleSwipe(for: originalIndex) },
+            onSwipeRight: { handleSwipe(for: originalIndex) }
         )
-        .zIndex(Double(deck.result.count - index))
+        .zIndex(Double(maxVisibleCards - displayIndex))
         .rotationEffect(rotation)
         .offset(x: offsetX, y: offsetY)
         .scaleEffect(scale)
+        .opacity(isVisible ? 1 : 0)
+        .animation(.easeInOut(duration: 0.3), value: currentTopIndex)
+    }
+    
+    // Handle card swipe and move to next card
+    private func handleSwipe(for cardIndex: Int) {
+        // Mark card as swiped
+        swipedCards.insert(cardIndex)
+        
+        // Move to next card with delay to allow swipe animation to complete
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                currentTopIndex = (currentTopIndex + 1) % deck.result.count
+            }
+        }
     }
 }
 

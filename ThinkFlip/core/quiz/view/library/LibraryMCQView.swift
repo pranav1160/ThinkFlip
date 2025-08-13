@@ -1,11 +1,21 @@
+//
+//  LibraryMCQView.swift
+//  ThinkFlip
+//
+//  Created by Pranav on 13/08/25.
+//
+
 import SwiftUI
 
-struct MCQView: View {
-    @ObservedObject var viewModel: QuizViewModel
+struct LibraryMCQView: View {
+    
+    @ObservedObject var viewModel: LibraryQuizViewModel
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         VStack {
-            // Header with score display
+            // Header
             HStack {
                 Text("Quiz")
                     .font(.largeTitle)
@@ -32,6 +42,7 @@ struct MCQView: View {
                     .padding(.horizontal)
             }
             
+            // Question + Options
             if !viewModel.questions.isEmpty,
                viewModel.currentQuestionIndex < viewModel.questions.count {
                 
@@ -43,7 +54,6 @@ struct MCQView: View {
                             .font(.title2)
                             .fontWeight(.semibold)
                             .padding()
-                            .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         
                         VStack(spacing: 12) {
@@ -51,11 +61,11 @@ struct MCQView: View {
                                 let option = currentQuestion.options[index]
                                 let optionLetter = ["A", "B", "C", "D", "E"][min(index, 4)]
                                 
-                                Button(action: {
+                                Button {
                                     if !viewModel.answerSubmitted {
                                         viewModel.selectedOption = option
                                     }
-                                }) {
+                                } label: {
                                     HStack(alignment: .top) {
                                         Text("\(optionLetter).")
                                             .font(.headline)
@@ -88,12 +98,13 @@ struct MCQView: View {
                                             .stroke(viewModel.selectedOption == option ? Color.blue : Color.gray.opacity(0.3), lineWidth: 1)
                                     )
                                 }
-                                .buttonStyle(PlainButtonStyle())
+                                .buttonStyle(.plain)
                                 .disabled(viewModel.answerSubmitted)
                             }
                         }
                         .padding(.horizontal)
                         
+                        // Explanation section
                         if viewModel.answerSubmitted {
                             VStack(alignment: .leading, spacing: 10) {
                                 Text(viewModel.showExplanation ? "Correct! 👏" : "Incorrect ❌")
@@ -114,96 +125,58 @@ struct MCQView: View {
                                     .padding(.vertical, 5)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
+                            .frame(maxWidth:.infinity)
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color(viewModel.showExplanation ? UIColor.systemGreen.withAlphaComponent(0.1) : UIColor.systemRed.withAlphaComponent(0.1)))
+                                    .fill(viewModel.showExplanation ? Color.green.opacity(0.1) : Color.red.opacity(0.1))
+                                    
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(viewModel.showExplanation ? Color.green.opacity(0.3) : Color.red.opacity(0.3), lineWidth: 1)
+                                   
                             )
-                            .padding(.horizontal)
+                            .padding()
                         }
                     }
                 }
                 
                 Spacer()
                 
-                // Bottom navigation area
+                // Bottom navigation buttons
                 VStack(spacing: 15) {
                     if !viewModel.answerSubmitted && viewModel.selectedOption != nil {
-                        Button(action: {
+                        Button("Submit Answer") {
                             viewModel.submitAnswer()
-                        }) {
-                            Text("Submit Answer")
-                                .fontWeight(.semibold)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
                         }
+                        .fontWeight(.semibold)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        
                     } else if viewModel.answerSubmitted {
                         if viewModel.currentQuestionIndex < viewModel.questions.count - 1 {
-                            Button(action: {
+                            Button("Next Question") {
                                 viewModel.nextQuestion()
-                            }) {
-                                Text("Next Question")
-                                    .fontWeight(.semibold)
-                                    .padding()
-                                    .frame(maxWidth: .infinity)
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(10)
                             }
-                        } else {
-                            VStack(spacing: 10) {
-                                Text("🎉 Quiz Completed!")
-                                    .font(.headline)
-                                    .foregroundColor(.blue)
-                                
-                                Text("Final Score: \(viewModel.score)/\(viewModel.questions.count)")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                
-                                let percentage = Double(viewModel.score) / Double(viewModel.questions.count) * 100
-                                Text("\(Int(percentage))%")
-                                    .font(.largeTitle)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(
-                                        percentage >= 80 ? .green :
-                                            percentage >= 60 ? .orange : .red
-                                    )
-                                
-                                Button(action: {
-                                    viewModel.resetQuiz()
-                                }) {
-                                    Text("Restart Quiz")
-                                        .fontWeight(.semibold)
-                                        .padding()
-                                        .frame(maxWidth: .infinity)
-                                        .background(Color.blue)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(10)
-                                }
-                                .padding(.top)
-                            }
+                            .fontWeight(.semibold)
                             .padding()
-                            .background(Color.gray.opacity(0.1))
-                            .cornerRadius(15)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            
+                        } else {
+                            quizCompletionView
                         }
                     }
                 }
                 .padding(.horizontal)
                 
-            } else if viewModel.isLoading {
-                Spacer()
-                ProgressView("Loading questions...")
-                    .progressViewStyle(CircularProgressViewStyle())
-                    .padding()
-                Spacer()
-            } else {
+            } else if viewModel.questions.isEmpty {
                 Spacer()
                 Text("No questions available")
                     .font(.headline)
@@ -214,7 +187,51 @@ struct MCQView: View {
         .padding(.vertical)
     }
     
-    // Helper function to determine the background color for options
+    private var quizCompletionView: some View {
+        VStack(spacing: 10) {
+            Text("🎉 Quiz Completed!")
+                .font(.headline)
+                .foregroundColor(.blue)
+            
+            Text("Final Score: \(viewModel.score)/\(viewModel.questions.count)")
+                .font(.title2)
+                .fontWeight(.bold)
+            
+            let percentage = Double(viewModel.score) / Double(viewModel.questions.count) * 100
+            Text("\(Int(percentage))%")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundColor(
+                    percentage >= 80 ? .green :
+                        percentage >= 60 ? .orange : .red
+                )
+            
+            Button("Restart Quiz") {
+                viewModel.resetQuiz()
+            }
+            .fontWeight(.semibold)
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(10)
+            .padding(.top)
+            
+            Button("Exit") {
+                dismiss()
+            }
+            .fontWeight(.semibold)
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(10)
+        }
+        .padding()
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(15)
+    }
+    
     private func backgroundColor(for option: String) -> Color {
         if !viewModel.answerSubmitted {
             return viewModel.selectedOption == option ? Color.blue : Color.gray.opacity(0.1)
@@ -230,25 +247,14 @@ struct MCQView: View {
     }
 }
 
-// Preview provider for SwiftUI Canvas
-struct MCQView_Previews: PreviewProvider {
-    static var previews: some View {
-        let viewModel = QuizViewModel()
-        viewModel.questions = [
-            Question(
-                question: "What is the capital of France?",
-                options: ["London", "Paris", "Berlin", "Madrid"],
-                correctOption: "Paris",
-                explanation: "Paris is the capital and most populous city of France."
-            ),
-            Question(
-                question: "Which planet is known as the Red Planet?",
-                options: ["Venus", "Mars", "Jupiter", "Saturn"],
-                correctOption: "Mars",
-                explanation: "Mars is called the Red Planet because of its reddish appearance."
-            )
-        ]
-        return MCQView(viewModel: viewModel)
-    }
+#Preview {
+    LibraryMCQView(
+        viewModel: {
+            let vm = LibraryQuizViewModel()
+            vm.questions = [
+                Question(id: UUID(), question: "Sample Q?", options: ["A", "B", "C"], correctOption: "B", explanation: "Because it is.")
+            ]
+            return vm
+        }()
+    )
 }
-

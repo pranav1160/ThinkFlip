@@ -5,7 +5,7 @@ struct NumberInputSheet: View {
     @Binding var value: String
     var onDone: () -> Void
     
-    @State private var sliderValue: Double = 5
+    @State private var selectedNumber: Int = 5
     
     var body: some View {
         NavigationStack {
@@ -14,17 +14,22 @@ struct NumberInputSheet: View {
                     .font(.title2)
                     .padding(.top)
                 
-                // Slider display
-                Text("Selected: \(Int(sliderValue))")
-                    .font(.headline)
-                
-                // Slider itself
-                Slider(value: $sliderValue, in: 0...15, step: 1)
-                    .padding(.horizontal)
+                // Wheel Picker
+                Picker("Select Number", selection: $selectedNumber) {
+                    ForEach(0...25, id: \.self) { num in
+                        Text("\(num)")
+                            .font(.system(size: 28, weight: .bold)) // Bigger text
+                            .tag(num)
+                    }
+                }
+                .pickerStyle(.wheel)
+                .frame(height: 250) // Taller picker
+                .clipped() // Keeps it neat
+
                 
                 // Done button
                 Button("Done") {
-                    value = "\(Int(sliderValue))"
+                    value = "\(selectedNumber)"
                     onDone()
                 }
                 .font(.headline)
@@ -39,8 +44,7 @@ struct NumberInputSheet: View {
             }
             .padding()
             .onAppear {
-                // Set initial value from binding, fallback to 5
-                sliderValue = Double(Int(value) ?? 5)
+                selectedNumber = Int(value) ?? 5
             }
         }
     }
