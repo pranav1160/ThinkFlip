@@ -11,23 +11,29 @@ struct CardLibraryView: View {
     
     var body: some View {
         NavigationStack {
-            if savedDecks.isEmpty {
-                EmptyStateView()
-                
-            } else {
-                List {
-                    ForEach(savedDecks) { deck in
-                        NavigationLink {
-                            LibraryStackView(
-                                deck: deck, // pass actual object
-                                colors: [.red, .blue, .green, .purple, .orange, .pink, .teal]
-                            )
-                        } label: {
-                            DeckSectionView(deck: deck)
+            ZStack{
+                GradientBackground()
+                VStack{
+                    if savedDecks.isEmpty {
+                        EmptyStateView()
+                        
+                    } else {
+                        List {
+                            ForEach(savedDecks) { deck in
+                                NavigationLink {
+                                    LibraryStackView(
+                                        deck: deck, // pass actual object
+                                        colors: [.red, .blue, .green, .purple, .orange, .pink, .teal]
+                                    )
+                                } label: {
+                                    DeckSectionView(deck: deck)
+                                }
+                            }
                         }
+                        .scrollContentBackground(.hidden)
                     }
                 }
-            }
+        }
         }
         .navigationTitle("Saved Decks")
     }

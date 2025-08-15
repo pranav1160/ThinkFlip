@@ -3,6 +3,7 @@ import Foundation
 import Vision
 import VisionKit
 
+
 class ScanViewModel: NSObject, ObservableObject, VNDocumentCameraViewControllerDelegate {
     @Published var allScannedDocs: [ScannedDocModel] = [] {
         didSet {
@@ -105,5 +106,18 @@ class ScanViewModel: NSObject, ObservableObject, VNDocumentCameraViewControllerD
         DispatchQueue.global(qos: .userInitiated).async {
             try? handler.perform([request])
         }
+    }
+}
+
+
+extension ScanViewModel {
+    /// Save PDF text as a scanned document
+    func savePDFText(_ text: String, fileName: String) {
+        let document = ScannedDocModel(
+            text: "📄 PDF: \(fileName)\n\n\(text)",
+            dateScanned: Date()
+        )
+        // Insert at the beginning for newest-first order
+        self.allScannedDocs.insert(document, at: 0)
     }
 }

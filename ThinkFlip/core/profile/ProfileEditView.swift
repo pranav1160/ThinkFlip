@@ -12,6 +12,7 @@ import PhotosUI
 struct ProfileEditView: View {
     @AppStorage("userName") private var savedUserName: String = ""
     @AppStorage("userEmail") private var savedEmail: String = ""
+    @Environment(\.dismiss) private var dismiss
     
     @State private var tempName: String = ""
     @State private var tempEmail: String = ""
@@ -19,7 +20,9 @@ struct ProfileEditView: View {
     @State private var profileImage: UIImage?
     
     var body: some View {
-        ScrollView {
+        
+        ZStack {
+            GradientBackground()
             VStack(spacing: 25) {
                 
                 // Profile Picture Picker
@@ -95,19 +98,15 @@ struct ProfileEditView: View {
                     }
                     
                     print("Saved profile: Name=\(savedUserName), Email=\(savedEmail)")
+                    
+                    dismiss()
                 }) {
                     Text("Save Profile")
                         .font(.headline)
                         .bold()
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(
-                            LinearGradient(
-                                gradient: Gradient(colors: [Color.purple, Color.blue]),
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
+                        .background(Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(14)
                         .shadow(radius: 5)
@@ -122,6 +121,11 @@ struct ProfileEditView: View {
                 // Load saved data into temporary state variables
                 tempName = savedUserName
                 tempEmail = savedEmail
+                
+                if let base64 = UserDefaults.standard.string(forKey: "profilePhoto"),
+                   let image = UIImage.fromBase64(base64) {
+                    profileImage = image
+                }
             }
         }
         .navigationTitle("Edit Profile")

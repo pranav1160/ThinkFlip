@@ -43,7 +43,7 @@ struct DetailTextView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .foregroundColor(.white)
-                        .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.purple]), startPoint: .leading, endPoint: .trailing))
+                        .background(Color.blue)
                         .clipShape(RoundedRectangle(cornerRadius: 15))
                         .shadow(radius: 3)
                 }
@@ -57,7 +57,7 @@ struct DetailTextView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                         .foregroundColor(.white)
-                        .background(LinearGradient(gradient: Gradient(colors: [Color.green, Color.teal]), startPoint: .leading, endPoint: .trailing))
+                        .background(Color.blue)
                         .clipShape(RoundedRectangle(cornerRadius: 15))
                         .shadow(radius: 3)
                 }

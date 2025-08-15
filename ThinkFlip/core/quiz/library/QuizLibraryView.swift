@@ -15,24 +15,30 @@ struct QuizLibraryView: View {
     
     var body: some View {
         NavigationStack {
-            if savedQuizes.isEmpty {
-                EmptyStateView()
-            } else {
-                List {
-                    ForEach(savedQuizes) { deck in
-                        NavigationLink {
-                            LibraryMCQView(
-                                viewModel: {
-                                    let vm = LibraryQuizViewModel()
-                                    vm.loadQuiz(from: deck)
-                                    return vm
-                                }()
-                            )
-                        } label: {
-                            Text("Play Quiz") // ✅ show quiz title if you have one
-                                .frame(height: 50)
-                                .font(.title2)
+            ZStack{
+                GradientBackground()
+                VStack{
+                    if savedQuizes.isEmpty {
+                        EmptyStateView()
+                    } else {
+                        List {
+                            ForEach(savedQuizes) { deck in
+                                NavigationLink {
+                                    LibraryMCQView(
+                                        viewModel: {
+                                            let vm = LibraryQuizViewModel()
+                                            vm.loadQuiz(from: deck)
+                                            return vm
+                                        }()
+                                    )
+                                } label: {
+                                    Text("Quiz:\(deck.title ?? "No Name")") // ✅ show quiz title if you have one
+                                        .frame(height: 50)
+                                        .font(.title2)
+                                }
+                            }
                         }
+                        .scrollContentBackground(.hidden)
                     }
                 }
             }
